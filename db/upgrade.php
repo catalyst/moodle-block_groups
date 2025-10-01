@@ -29,5 +29,20 @@
 
  */
 function xmldb_block_groups_upgrade($oldversion) {
-    return true;
+    global $DB;
+
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2025100100) {
+        $table = new xmldb_table('block_groups_hide');
+
+        // Define key id (foreign) to be dropped form block_groups_hide.
+        $key = new xmldb_key('foreign', XMLDB_KEY_FOREIGN, ['id'], 'groups', ['id']);
+
+        // Launch drop key id. There is no key_exists method.
+        $dbman->drop_key($table, $key);
+
+        // Grade_me savepoint reached.
+        upgrade_block_savepoint(true, 2025100100, 'groups');
+    }
 }
